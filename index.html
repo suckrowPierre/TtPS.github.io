@@ -15,8 +15,12 @@
 <h3>Vergleich vortrainierten Modelle von <a href="https://audioldm.github.io/" target="_blank" rel="noreferrer noopener">AudioLDM</a>/<a href="https://audioldm.github.io/audioldm2/" target="_blank" rel="noreferrer noopener">AudioLDM2</a> in einem instrumentalen Kontext</h3>
 <ul>
     <li><strong>Abtastrate</strong>: 16.000 kHz</li>
-    <li><strong>Seed</strong>: [Ihr Seed hier]</li>
+    <li><strong>Seed</strong>: 27463458782</li>
     <li><strong>Erstellungsdatum</strong>: [Ihr Datum hier]</li>
+    <li><strong>Benutztes Torch-Device</strong>: mps</li>
+    <li><strong>Inferenzschritte (num_inference_steps)</strong>: 10</li>
+    <li><strong>Leitskala (guidance_scale)</strong>: 2.5</li>
+    <li><strong>Negativer Prompt</strong>: low quality, average quality, noise, high pitch, artefacts</li>
 </ul>
 
 <table>
@@ -29,55 +33,45 @@
         <th> <a href="https://huggingface.co/cvssp/audioldm2-music" target="_blank" rel="noreferrer noopener">audioldm2-music</a></th>
     </tr>
     </thead>
-    <tbody>
-    <tr>
-        <td>Prompt 1</td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model1_prompt1.ogg" type="audio/ogg">
-            </audio>
-        </td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model2_prompt1.ogg" type="audio/ogg">
-            </audio>
-        </td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model3_prompt1.ogg" type="audio/ogg">
-            </audio>
-        </td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model4_prompt1.ogg" type="audio/ogg">
-            </audio>
-        </td>
-    </tr>
-    <tr>
-        <td>Prompt 2</td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model1_prompt2.ogg" type="audio/ogg">
-            </audio>
-        </td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model2_prompt2.ogg" type="audio/ogg">
-            </audio>
-        </td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model3_prompt2.ogg" type="audio/ogg">
-            </audio>
-        </td>
-        <td>
-            <audio controls>
-                <source src="path_to_audio_model4_prompt2.ogg" type="audio/ogg">
-            </audio>
-        </td>
-    </tr>
+    <tbody id="audioTableBody">
     </tbody>
 </table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const repoOwner = 'suckrowPierre';
+        const repoName = 'ThesisModelsResultsGenerator';
+        const branch = 'main';
+
+        const baseUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
+
+        fetch(baseUrl + 'results?ref=' + branch)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('audioTableBody');
+
+                data.forEach(item => {
+                    if(item.type === 'dir') {
+                        const promptName = item.name;
+                        console.log(promptName);
+                        fetch(baseUrl + `results/${promptName}?ref=${branch}`)
+                            .then(response => response.json())
+                            .then(audioFiles => {
+                                const tr = document.createElement('tr');
+                                tr.innerHTML = `
+                                <td>${promptName}</td>
+                                ${['audioldm-m-full', 'audioldm-l-full', 'audioldm2-large', 'audioldm2-music'].map(modelName => {
+                                    const file = audioFiles.find(f => f.name.startsWith(modelName));
+                                    return `<td><audio controls><source src="${file?.download_url || '#'}" type="audio/wav"></audio></td>`;
+                                }).join('')}
+                            `;
+                                tableBody.appendChild(tr);
+                            });
+                    }
+                });
+            });
+    });
+    </script>
 
 <h2>Anhang</h2>
 <ul>
