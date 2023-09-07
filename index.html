@@ -48,7 +48,39 @@
     </tbody>
 </table>
 
+
 <script>
+
+
+    const promptsFile = 'ThesisModelsResultsGenerator/prompts.txt';
+    const tableBody = document.getElementById('audioTableBody');
+
+
+
+    fetch(promptsFile)
+        .then(response => response.text())
+        .then(data => {
+            // make an array of the lines
+            let lines = data.split('\n');
+            //replace any space with underscore
+            //lines = lines.map(line => line.replace(/ /g, '_'));
+
+            lines.forEach(prompt => {
+                if (prompt === '') return;
+                const prompt_folder = prompt.replace(/ /g, '_');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${prompt}</td>
+                 ${['audioldm-m-full', 'audioldm-l-full', 'audioldm2-large', 'audioldm2-music'].map(modelName => {
+                    const file = `ThesisModelsResultsGenerator/results/${prompt_folder}/${modelName}.mp3`;
+                    return `<td><audio controls><source src="${file}" type="audio/mp3"></audio></td>`}).join('')}`;
+                tableBody.appendChild(tr);
+            console.log(lines);  // This will display the contents of the file.
+        })
+        })
+        .catch(error => {
+            console.error('There was an error reading the file:', error);
+        });
+    /*
     document.addEventListener('DOMContentLoaded', function () {
         const repoOwner = 'suckrowPierre';
         const repoName = 'ThesisModelsResultsGenerator';
@@ -82,7 +114,11 @@
                 });
             });
     });
+
+     */
     </script>
+
+
 
 <h2>Anhang</h2>
 <ul>
