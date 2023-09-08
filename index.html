@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
+    <meta name="author" content="Pierre-Louis Suckrow">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="resources/github.css">
     <style>
@@ -80,42 +81,6 @@
         .catch(error => {
             console.error('There was an error reading the file:', error);
         });
-    /*
-    document.addEventListener('DOMContentLoaded', function () {
-        const repoOwner = 'suckrowPierre';
-        const repoName = 'ThesisModelsResultsGenerator';
-        const branch = 'main';
-
-        const baseUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
-
-        fetch(baseUrl + 'results?ref=' + branch)
-            .then(response => response.json())
-            .then(data => {
-                const tableBody = document.getElementById('audioTableBody');
-
-                data.forEach(item => {
-                    if(item.type === 'dir') {
-                        const promptName = item.name;
-                        console.log(promptName);
-                        fetch(baseUrl + `results/${promptName}?ref=${branch}`)
-                            .then(response => response.json())
-                            .then(audioFiles => {
-                                const tr = document.createElement('tr');
-                                tr.innerHTML = `
-                                <td>${promptName}</td>
-                                ${['audioldm-m-full', 'audioldm-l-full', 'audioldm2-large', 'audioldm2-music'].map(modelName => {
-                                    const file = audioFiles.find(f => f.name.startsWith(modelName));
-                                    return `<td><audio controls><source src="${file?.download_url || '#'}" type="audio/wav"></audio></td>`;
-                                }).join('')}
-                            `;
-                                tableBody.appendChild(tr);
-                            });
-                    }
-                });
-            });
-    });
-
-     */
     </script>
 
 
