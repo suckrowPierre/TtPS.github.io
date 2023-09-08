@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="resources/github.css">
     <style>
-        /* Added CSS */
         table {
             width: 100%;
             overflow-x: auto;
@@ -61,11 +60,7 @@
     fetch(promptsFile)
         .then(response => response.text())
         .then(data => {
-            // make an array of the lines
             let lines = data.split('\n');
-            //replace any space with underscore
-            //lines = lines.map(line => line.replace(/ /g, '_'));
-
             lines.forEach(prompt => {
                 if (prompt === '') return;
                 const prompt_folder = prompt.replace(/ /g, '_');
@@ -75,7 +70,7 @@
                     const file = `ThesisModelsResultsGenerator/results/${prompt_folder}/${modelName}.mp3`;
                     return `<td><audio controls><source src="${file}" type="audio/mp3"></audio></td>`}).join('')}`;
                 tableBody.appendChild(tr);
-            console.log(lines);  // This will display the contents of the file.
+            console.log(lines);
         })
         })
         .catch(error => {
