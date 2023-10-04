@@ -2,87 +2,284 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="author" content="Pierre-Louis Suckrow">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="resources/github.css">
+    <meta content="Pierre-Louis Suckrow" name="author">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="resources/github.css" rel="stylesheet">
     <style>
         table {
             width: 100%;
             overflow-x: auto;
             display: block;
         }
+
         audio {
-            width: 230px;
+            width: 150px;
         }
     </style>
     <title>Text-zu-spielbarem-Klang: Synthesizer basierend auf Latent-Diffusion-Technologie</title>
 </head>
-<body width=100% >
+<body width=100%>
 
 <h1>Text-zu-spielbarem-Klang: Synthesizer basierend auf Latent-Diffusion-Technologie</h1>
 
 
-<h2>Ergebnisse</h2>
-<h3 width=100% >Vergleich vortrainierten Modelle von <a href="https://audioldm.github.io/" target="_blank" rel="noreferrer noopener">AudioLDM</a>/<a href="https://audioldm.github.io/audioldm2/" target="_blank" rel="noreferrer noopener">AudioLDM2</a> in einem instrumentalen Kontext</h3>
-<ul>
-    <li><strong>Abtastrate</strong>: 16.000 kHz</li>
-    <li><strong>Seed</strong>: 27463458782</li>
-    <li><strong>Erstellungsdatum</strong>: [Ihr Datum hier]</li>
-    <li><strong>Benutztes Torch-Device</strong>: mps</li>
-    <li><strong>Inferenzschritte (num_inference_steps)</strong>: 10</li>
-    <li><strong>Leitskala (guidance_scale)</strong>: 2.5</li>
-    <li><strong>Negativer Prompt</strong>: low quality, average quality, noise, high pitch, artefacts</li>
-</ul>
+<h1>Ergebnisse</h1>
+<h2 width=100%>Vergleich vortrainierten Modelle von <a href="https://audioldm.github.io/" rel="noreferrer noopener"
+                                                       target="_blank">AudioLDM</a>/<a
+        href="https://audioldm.github.io/audioldm2/" rel="noreferrer noopener" target="_blank">AudioLDM2</a> in einem
+    instrumentalen Kontext</h2>
 
-<table>
-    <thead>
-    <tr>
-        <th>Prompt</th>
-        <th> <a href="https://huggingface.co/cvssp/audioldm-m-full" target="_blank" rel="noreferrer noopener">audioldm-m-full</a></th>
-        <th> <a href="https://huggingface.co/cvssp/audioldm-l-full" target="_blank" rel="noreferrer noopener">audioldm-l-full</a></th>
-        <th> <a href="https://huggingface.co/cvssp/audioldm2-large" target="_blank" rel="noreferrer noopener">audioldm2-large</a></th>
-        <th> <a href="https://huggingface.co/cvssp/audioldm2-music" target="_blank" rel="noreferrer noopener">audioldm2-music</a></th>
-    </tr>
-    </thead>
-    <tbody id="audioTableBody">
-    </tbody>
-</table>
+<li><strong>Abtastrate</strong>: 16.000 kHz</li>
+<li><strong>Erstellungsdatum</strong>: [Ihr Datum hier]</li>
 
+<style>
+    .navbar {
+        width: 100%; /* This makes sure the navbar takes up the full width of its parent */
+    }
 
+    #navbar_table {
+        width: 100%;
+        display: table;
+    }
+
+    .navbar a:hover {
+        color: rgba(0, 123, 255, 0.73); /* Changes the link color when hovering */
+    }
+</style>
+
+<div class="navbar">
+    <table id="navbar_table">
+        <tr>
+            <th><a href="#h">Gerät-Evaluation</a></th>
+            <th><a href="#">Einfluss der Dauer</a></th>
+            <th><a href="#">Einfluss der Leitskala</a></th>
+            <th><a href="#">Einfluss des Negativen Prompts</a></th>
+            <th><a href="#">Einfluss der Inferenzschritte</a></th>
+            <th><a href="#">TODO: musikalische Prompts</a></th>
+            <th><a href="#">TODO: musikalische Verarbeitung spezieller Prompts</a></th>
+
+        </tr>
+    </table>
+
+</div>
+<div id="results">
+
+</div>
 <script>
 
+    function linkClicked(event) {
+        event.preventDefault();
 
-    const promptsFile = 'ThesisModelsResultsGenerator/prompts.txt';
-    const tableBody = document.getElementById('audioTableBody');
+        switch (event.target.innerText) {
+            case 'Gerät-Evaluation':
+                showDeviceEvaluation();
+                break;
+            case 'Einfluss der Dauer':
+                showDurationEvaluation();
+                break;
+            case 'Einfluss der Leitskala':
+                showGuidanceScaleEvaluation();
+                break;
+            case 'Einfluss des Negativen Prompts':
+                showNegativePromptEvaluation();
+                break;
+            case 'Einfluss der Inferenzschritte':
+                showInferenceStepsEvaluation();
+                break;
+        }
+    }
 
+    document.addEventListener("DOMContentLoaded", function () {
+        var navLinks = document.querySelectorAll(".navbar a");
 
-
-    fetch(promptsFile)
-        .then(response => response.text())
-        .then(data => {
-            let lines = data.split('\n');
-            lines.forEach(prompt => {
-                if (prompt === '') return;
-                const prompt_folder = prompt.replace(/ /g, '_');
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${prompt}</td>
-                 ${['audioldm-m-full', 'audioldm-l-full', 'audioldm2-large', 'audioldm2-music'].map(modelName => {
-                    const file = `ThesisModelsResultsGenerator/results/${prompt_folder}/${modelName}.mp3`;
-                    return `<td><audio controls><source src="${file}" type="audio/mp3"></audio></td>`}).join('')}`;
-                tableBody.appendChild(tr);
-            console.log(lines);
-        })
-        })
-        .catch(error => {
-            console.error('There was an error reading the file:', error);
+        navLinks.forEach(function (link) {
+            link.addEventListener("click", linkClicked);
         });
-    </script>
+    });
+
+    function getUrlFromModelName(modelName) {
+        return `https://huggingface.co/cvssp/${modelName}`;
+    }
 
 
+    function getParameters(evaluationName) {
+        //reads parameters.txt in ThesisModelsResultsGenerator/results/evaluationName/parameters.txt and returns a dictionary
+        const parametersFile = `ThesisModelsResultsGenerator/results/${evaluationName}/parameters.txt`;
+        return fetch(parametersFile)
+            .then(response => response.text())
+            .then(data => {
+                let lines = data.split('\n');
+                let parameters = {};
+                lines.forEach(line => {
+                    if (line === '') return;
+                    const [key, value] = line.split(':');
+                    //remove [ and ' from value
+                    parameters[key] = value.replace(/[\[\]']+/g, '');
+                })
+                return parameters;
+            })
+            .catch(error => {
+                console.error('There was an error reading the file:', error);
+            });
+
+    }
+
+    function translateParametersDict(paramDictionary) {
+        var translatedDict = {};
+        translatedDict['Seed'] = paramDictionary['seed'];
+        translatedDict['Inferenzschritte'] = paramDictionary['num_inference_steps'];
+        translatedDict['Leitskala'] = paramDictionary['guidance_scale'];
+        translatedDict['Negativer Prompt'] = paramDictionary['negative_prompt'];
+        translatedDict['Benutzte Torch-Geräte'] = paramDictionary['devices'];
+        translatedDict['Benutzte Modelle'] = paramDictionary['models'];
+        translatedDict['Prompts'] = paramDictionary['prompts'];
+        translatedDict['Audiolänge in s'] = paramDictionary['audio_length_in_s'];
+        translatedDict['Anzahl der Wellenformen pro Prompt '] = paramDictionary['num_waveforms_per_prompt'];
+        return translatedDict;
+    }
+
+    function stringToArray(string) {
+        return string.split(',').map(item => item.trim());
+    }
+
+
+    function createTableModelsColumn(id, models, row_title, body_html) {
+        return `
+        <table>
+    <thead>
+    <tr>
+        <th>${row_title}</th>
+        ${models.map(model => `<th><a href="${getUrlFromModelName(model)}" target="_blank" rel="noreferrer noopener">${model}</a></th>`).join('')}
+    </tr>
+    </thead>
+    <tbody>
+    ${body_html}
+    </tbody>
+</table>
+        `
+
+    }
+
+    function getAudioElement(evaluation, device, prompt, model, extraParam) {
+        if (extraParam === undefined) {
+            return `<audio controls src="ThesisModelsResultsGenerator/results/${evaluation}/${device}/${prompt}/${model}.wav"></audio>`
+        }
+        return `<audio controls src="ThesisModelsResultsGenerator/results/${evaluation}/${device}/${prompt}/${model}/${extraParam}.wav"></audio>`
+    }
+
+
+    function createTableModelRows(models, column, evaluation, device, prompt) {
+        return `
+        <table>
+    <thead>
+    <tr>
+        <th>Modelle</th>
+        ${column.map(item => `<th>${item}</th>`).join('')}
+    </tr>
+    </thead>
+    <tbody>
+    ${models.map(model => `<tr><td>${model}</td>${column.map(item => `<td>${getAudioElement(evaluation, device, prompt, model, item)}</td>`).join('')}</tr>`).join('')}
+    </tbody>
+</table>
+        `
+    }
+
+    function getHtmlParameters(paramDictionary, title, description) {
+        //display title and description + list of parameters used in evaluation
+        return `
+        <hr>
+        <h3>${title}</h3>
+        <p>${description}</p>
+        <ul>
+        ${Object.entries(paramDictionary).map(([key, value]) => `<li><strong>${key}</strong>: ${value}</li>`).join('')}
+
+        </ul>
+        `
+    }
+
+    function showDeviceEvaluation() {
+        //clear div results
+        document.getElementById('results').innerHTML = '';
+        getParameters('device_evaluation').then(
+            parameters => {
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Geräteevaluation', 'Die folgenden Parameter wurden für die Geräteevaluation verwendet:');
+                document.getElementById('results').innerHTML += HTMLparams;
+                stringToArray(parameters['prompts']).forEach(prompt => {
+                    const tableBody = `
+                ${stringToArray(parameters['devices']).map(device => `<tr><td>${device}</td>
+                ${stringToArray(parameters['models']).map(model => `<td><audio controls src="ThesisModelsResultsGenerator/results/device_evaluation/${device}/${prompt.replace(/ /g, "_")}/${model}.wav"></audio></td>`).join('')}
+                </tr>`).join('')}
+                `
+                    document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
+                ${createTableModelsColumn('results', stringToArray(parameters['models']), 'Gerät', tableBody)}
+                `
+                })
+            });
+    }
+
+    function showInferenceStepsEvaluation() {
+        //clear div results
+        document.getElementById('results').innerHTML = '';
+        getParameters('num_inference_steps_evaluation').then(
+            parameters => {
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Inferenzschrittevaluation', 'Die folgenden Parameter wurden für die Inferenzschrittevaluation verwendet:');
+                document.getElementById('results').innerHTML += HTMLparams;
+                stringToArray(parameters['prompts']).forEach(prompt => {
+                    document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
+                ${createTableModelRows(stringToArray(parameters['models']), stringToArray(parameters['num_inference_steps']), 'num_inference_steps_evaluation', "mps", prompt.replace(/ /g, "_"))}
+                `
+                })
+            });
+    }
+
+    function showGuidanceScaleEvaluation() {
+        document.getElementById('results').innerHTML = '';
+        getParameters('guidance_scale_evaluation').then(
+            parameters => {
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Leitskalaevaluation', 'Die folgenden Parameter wurden für die Leitskalaevaluation verwendet:');
+                document.getElementById('results').innerHTML += HTMLparams;
+                stringToArray(parameters['prompts']).forEach(prompt => {
+                    document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
+                ${createTableModelRows(stringToArray(parameters['models']), stringToArray(parameters['guidance_scale']), 'guidance_scale_evaluation', "mps", prompt.replace(/ /g, "_"))}
+                `
+                })
+            });
+    }
+
+    function showDurationEvaluation() {
+        document.getElementById('results').innerHTML = '';
+        getParameters('duration_evaluation').then(
+            parameters => {
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Dauerevaluation', 'Die folgenden Parameter wurden für die Dauerevaluation verwendet:');
+                document.getElementById('results').innerHTML += HTMLparams;
+                stringToArray(parameters['prompts']).forEach(prompt => {
+                    document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
+                ${createTableModelRows(stringToArray(parameters['models']), stringToArray(parameters['audio_length_in_s']), 'duration_evaluation', "mps", prompt.replace(/ /g, "_"))}
+                `
+                })
+            });
+    }
+
+    function showNegativePromptEvaluation() {
+        document.getElementById('results').innerHTML = '';
+        getParameters('negative_prompt_evaluation').then(
+            parameters => {
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Negativpromptevaluation', 'Die folgenden Parameter wurden für die Negativpromptevaluation verwendet:');
+                document.getElementById('results').innerHTML += HTMLparams;
+                stringToArray(parameters['prompts']).forEach(prompt => {
+                    document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
+                ${createTableModelRows(stringToArray(parameters['models']), stringToArray(parameters['negative_prompt']), 'negative_prompt_evaluation', "mps", prompt.replace(/ /g, "_"))}
+                `
+                })
+            });
+    }
+
+
+</script>
 
 <h2>Anhang</h2>
 <ul>
-    <li><a href="#" target="_blank" rel="noreferrer noopener">TODO: DiffuseSynth</a></li>
+    <li><a href="#" rel="noreferrer noopener" target="_blank">TODO: DiffuseSynth</a></li>
     <li><a href="#">TODO: Link zur veröffentlichten Bachelorarbeit</a></li>
 </ul>
 
