@@ -56,8 +56,8 @@
             <th><a href="#">Einfluss der Inferenzschritte</a></th>
             <th><a href="#">Einfluss der Dauer</a></th>
             <th><a href="#">Einfluss des Negativen Prompts</a></th>
-            <th><a href="#">TODO: musikalische Prompts</a></th>
-            <th><a href="#">TODO: musikalische Verarbeitung spezieller Prompts</a></th>
+            <th><a href="#">Musikalische Benutzbarkeit</a></th>
+            <th><a href="#">Musikalische Verarbeitung spezieller Prompts</a></th>
 
         </tr>
     </table>
@@ -86,6 +86,9 @@
                 break;
             case 'Einfluss der Inferenzschritte':
                 showInferenceStepsEvaluation();
+                break;
+            case 'Musikalische Benutzbarkeit':
+                showMusicalUsabilityEvaluation();
                 break;
         }
     }
@@ -133,7 +136,9 @@
         translatedDict['Negativer Prompt'] = paramDictionary['negative_prompt'];
         translatedDict['Benutzte Torch-Geräte'] = paramDictionary['devices'];
         translatedDict['Benutzte Modelle'] = paramDictionary['models'];
-        translatedDict['Prompts'] = paramDictionary['prompts'];
+        if(paramDictionary['prompts']){
+            translatedDict['Prompts'] = paramDictionary['prompts'];
+        }
         translatedDict['Audiolänge in s'] = paramDictionary['audio_length_in_s'];
         translatedDict['Anzahl der Wellenformen pro Prompt '] = paramDictionary['num_waveforms_per_prompt'];
         return translatedDict;
@@ -273,6 +278,53 @@
                 `
                 })
             });
+    }
+
+    async function showSubPromptsEvaluation(evaluation) {
+        const parameters = await getParameters(`prompts_evaluation/${evaluation}`);
+        const tableBody = `
+                ${stringToArray(parameters['prompts']).map(prompt => `<tr><td>${prompt}</td>
+                ${stringToArray(parameters['models']).map(model => `<td><audio controls src="ThesisModelsResultsGenerator/results/prompts_evaluation/${evaluation}/mps/${prompt.replace(/ /g, "_")}/${model}.wav"></audio></td>`).join('')}
+                </tr>`).join('')}
+                `
+        return  createTableModelsColumn('results', stringToArray(parameters['models']), 'Prompt', tableBody);
+    }
+
+    async function showMusicalUsabilityEvaluation() {
+        document.getElementById('results').innerHTML = '';
+        const parameters = await getParameters(`prompts_evaluation`);
+        console.log(parameters);
+
+
+
+        document.getElementById('results').innerHTML += getHtmlParameters(translateParametersDict(parameters), 'Musikalitätsevaluation', 'Die folgenden Parameter wurden für die Musikalitätsevaluation verwendet:');
+        document.getElementById('results').innerHTML += '<br><br>';
+
+        title = "Prompts die ein einzelnes akustisches Event umschreiben"
+        document.getElementById('results').innerHTML += `<h4>${title}</h4>`
+        subTable = await showSubPromptsEvaluation('single_events_prompts');
+        document.getElementById('results').innerHTML += subTable;
+
+        title = "Instrumentenspezifische Prompts"
+        document.getElementById('results').innerHTML += `<h4>${title}</h4>`
+        subTable = await showSubPromptsEvaluation('instrument_specific_prompts');
+        document.getElementById('results').innerHTML += subTable;
+
+        title = "Emotionsabhängige Prompts"
+        document.getElementById('results').innerHTML += `<h4>${title}</h4>`
+        subTable = await showSubPromptsEvaluation('emotion_specific_prompts');
+        document.getElementById('results').innerHTML += subTable;
+
+        title = "Effektspezifische Prompts"
+        document.getElementById('results').innerHTML += `<h4>${title}</h4>`
+        subTable = await showSubPromptsEvaluation('effect_specific_prompts');
+        document.getElementById('results').innerHTML += subTable;
+
+        title = "Musikproduktionsspezifische Prompts"
+        document.getElementById('results').innerHTML += `<h4>${title}</h4>`
+        subTable = await showSubPromptsEvaluation('music_production_specific_prompts');
+        document.getElementById('results').innerHTML += subTable;
+
     }
 
 
