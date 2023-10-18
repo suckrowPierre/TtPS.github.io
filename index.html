@@ -24,14 +24,16 @@
 
 <p>! Achtung aufgrund der Menge an Audiodateien scheint die Seite unter Safari nicht zu funktionieren. Bitte verwenden Sie einen anderen Browser. Chromium wird empfohlen.</p>
 
-<h1>Ergebnisse</h1>
+<h1>Evaluation der vortrainierten Modelle</h1>
+
+<p> Folgende Aufarbeitung des Verhaltens für verschiedene Eingaben und Parameter der in <a href="https://github.com/suckrowPierre/WaveGenSynth/tree/thesis">WaveGenSynth</a> verfügbaren Modelle, gibt einen Einblick in die Qualität und die Nutzbarkeit dieser für das digitale Instrument.</p>
 <h2 width=100%>Vergleich vortrainierten Modelle von <a href="https://audioldm.github.io/" rel="noreferrer noopener"
                                                        target="_blank">AudioLDM</a>/<a
         href="https://audioldm.github.io/audioldm2/" rel="noreferrer noopener" target="_blank">AudioLDM2</a> in einem
     instrumentalen Kontext</h2>
 
 <li><strong>Abtastrate</strong>: 16.000 kHz</li>
-<li><strong>Erstellungsdatum</strong>: [Ihr Datum hier]</li>
+<li><strong>Erstellungsdatum</strong>: 18. Oktober 2023</li>
 
 <style>
     .navbar {
@@ -51,13 +53,12 @@
 <div class="navbar">
     <table id="navbar_table">
         <tr>
-            <th><a href="#h">Gerät-Evaluation</a></th>
+            <th><a href="#h">Einfluss des Torch-Geräts</a></th>
             <th><a href="#">Einfluss der Leitskala</a></th>
             <th><a href="#">Einfluss der Inferenzschritte</a></th>
             <th><a href="#">Einfluss der Dauer</a></th>
             <th><a href="#">Einfluss des Negativen Prompts</a></th>
-            <th><a href="#">Musikalische Benutzbarkeit</a></th>
-            <th><a href="#">Musikalische Verarbeitung spezieller Prompts</a></th>
+            <th><a href="#">Einfluss der Prompts</a></th>
 
         </tr>
     </table>
@@ -72,7 +73,7 @@
         event.preventDefault();
 
         switch (event.target.innerText) {
-            case 'Gerät-Evaluation':
+            case 'Einfluss des Torch-Geräts':
                 showDeviceEvaluation();
                 break;
             case 'Einfluss der Dauer':
@@ -87,7 +88,7 @@
             case 'Einfluss der Inferenzschritte':
                 showInferenceStepsEvaluation();
                 break;
-            case 'Musikalische Benutzbarkeit':
+            case 'Einfluss der Prompts':
                 showMusicalUsabilityEvaluation();
                 break;
         }
@@ -208,7 +209,7 @@
         document.getElementById('results').innerHTML = '';
         getParameters('device_evaluation').then(
             parameters => {
-                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Geräteevaluation', 'Die folgenden Parameter wurden für die Geräteevaluation verwendet:');
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Einfluss des Torch-Geräts', 'Für die Variation der Torch-Geräte mit folgenden fixierten Parameter werden die unterschiedlichen Audiosignale dargestellt:');
                 document.getElementById('results').innerHTML += HTMLparams;
                 stringToArray(parameters['prompts']).forEach(prompt => {
                     const tableBody = `
@@ -228,7 +229,8 @@
         document.getElementById('results').innerHTML = '';
         getParameters('num_inference_steps_evaluation').then(
             parameters => {
-                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Inferenzschrittevaluation', 'Die folgenden Parameter wurden für die Inferenzschrittevaluation verwendet:');
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Einfluss der Inferenzschritte', 'Für die Variation der Inferenzschritte mit folgenden fixierten Parameter werden die unterschiedlichen Audiosignale dargestellt:' +
+                    '\n');
                 document.getElementById('results').innerHTML += HTMLparams;
                 stringToArray(parameters['prompts']).forEach(prompt => {
                     document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
@@ -242,7 +244,7 @@
         document.getElementById('results').innerHTML = '';
         getParameters('guidance_scale_evaluation').then(
             parameters => {
-                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Leitskalaevaluation', 'Die folgenden Parameter wurden für die Leitskalaevaluation verwendet:');
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Einfluss der Leitskala', 'Für die Variation des Leitskala-Wertes mit folgenden fixierten Parameter werden die unterschiedlichen Audiosignale dargestellt:');
                 document.getElementById('results').innerHTML += HTMLparams;
                 stringToArray(parameters['prompts']).forEach(prompt => {
                     document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
@@ -256,7 +258,7 @@
         document.getElementById('results').innerHTML = '';
         getParameters('duration_evaluation').then(
             parameters => {
-                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Dauerevaluation', 'Die folgenden Parameter wurden für die Dauerevaluation verwendet:');
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Einfluss der Dauer', 'Für die Variation der gewünschten Dauer mit folgenden fixierten Parameter werden die unterschiedlichen Audiosignale dargestellt:');
                 document.getElementById('results').innerHTML += HTMLparams;
                 stringToArray(parameters['prompts']).forEach(prompt => {
                     document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
@@ -270,7 +272,7 @@
         document.getElementById('results').innerHTML = '';
         getParameters('negative_prompt_evaluation').then(
             parameters => {
-                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Negativpromptevaluation', 'Die folgenden Parameter wurden für die Negativpromptevaluation verwendet:');
+                const HTMLparams = getHtmlParameters(translateParametersDict(parameters), 'Einfluss des Negativen Prompts', 'Für die Variation des negativen Prompts mit folgenden fixierten Parameter werden die unterschiedlichen Audiosignale dargestellt:');
                 document.getElementById('results').innerHTML += HTMLparams;
                 stringToArray(parameters['prompts']).forEach(prompt => {
                     document.getElementById('results').innerHTML += `<h4>${prompt}</h4>
@@ -297,7 +299,7 @@
 
 
 
-        document.getElementById('results').innerHTML += getHtmlParameters(translateParametersDict(parameters), 'Musikalitätsevaluation', 'Die folgenden Parameter wurden für die Musikalitätsevaluation verwendet:');
+        document.getElementById('results').innerHTML += getHtmlParameters(translateParametersDict(parameters), 'Einfluss der Prompts', 'Für unterschiedliche Prompts, welche im Kontext des benutzen von WaveGenSynth auftreten können, werde mit folgenden fixierten Parameter die unterschiedlichen Audiosignale dargestellt:');
         document.getElementById('results').innerHTML += '<br><br>';
 
         title = "Prompts die ein einzelnes akustisches Event umschreiben"
@@ -332,8 +334,8 @@
 
 <h2>Anhang</h2>
 <ul>
-    <li><a href="#" rel="noreferrer noopener" target="_blank">TODO: DiffuseSynth</a></li>
-    <li><a href="#">TODO: Link zur veröffentlichten Bachelorarbeit</a></li>
+    <li><a href="https://github.com/suckrowPierre/WaveGenSynth/tree/thesis">WaveGenSynth</a></li>
+    <li><a href="https://github.com/suckrowPierre/BachelorThesis">Text-zu-spielbarem-Klang: Synthesizer basierend auf Latent-Diffusion-Technologie</a></li>
 </ul>
 
 
